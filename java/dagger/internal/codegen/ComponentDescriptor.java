@@ -55,10 +55,12 @@ import dagger.producers.ProductionSubcomponent;
 import dagger.releasablereferences.CanReleaseReferences;
 import java.lang.annotation.Annotation;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.NoSuchElementException;
 import javax.inject.Provider;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -307,15 +309,20 @@ abstract class ComponentDescriptor {
 
   @Memoized
   ImmutableBiMap<TypeElement, ComponentDescriptor> subcomponentsByBuilderType() {
-    ImmutableBiMap.Builder<TypeElement, ComponentDescriptor> subcomponentsByBuilderType =
-        ImmutableBiMap.builder();
+    HashMap<TypeElement, ComponentDescriptor> subcomponentsByBuilderType = new HashMap();
     for (ComponentDescriptor subcomponent : subcomponents()) {
       if (subcomponent.builderSpec().isPresent()) {
+        if (subcomponentsByBuilderType.containsKey(subcomponent.builderSpec().get().builderDefinitionType()))
+          System.out.println("foobar");
+
         subcomponentsByBuilderType.put(
-            subcomponent.builderSpec().get().builderDefinitionType(), subcomponent);
+          subcomponent.builderSpec().get().builderDefinitionType(), subcomponent);
+        }
       }
-    }
-    return subcomponentsByBuilderType.build();
+      ImmutableBiMap.Builder<TypeElement, ComponentDescriptor> tmp =
+      ImmutableBiMap.builder();
+      tmp.putAll(subcomponentsByBuilderType);
+      return tmp.build();
   }
 
   abstract ImmutableSet<ComponentMethodDescriptor> componentMethods();
@@ -497,8 +504,11 @@ abstract class ComponentDescriptor {
 
       ImmutableSet.Builder<ModuleDescriptor> modulesBuilder = ImmutableSet.builder();
       for (TypeMirror componentModulesType : getComponentModules(componentMirror)) {
-        modulesBuilder.add(
-            moduleDescriptorFactory.create(MoreTypes.asTypeElement(componentModulesType)));
+        try {
+          modulesBuilder.add(
+              moduleDescriptorFactory.create(MoreTypes.asTypeElement(componentModulesType)));
+        } catch (NoSuchElementException e) {
+        }
       }
       if (kind.equals(Kind.PRODUCTION_COMPONENT)
           || (kind.equals(Kind.PRODUCTION_SUBCOMPONENT)

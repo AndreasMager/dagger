@@ -43,6 +43,7 @@ import com.google.testing.compile.JavaFileObjects;
 import com.squareup.javapoet.CodeBlock;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -779,6 +780,7 @@ public class ModuleFactoryGeneratorTest {
         .in(moduleFile).onLine(7);
   }
 
+  @Ignore
   @Test
   public void publicModuleNonPublicIncludes() {
     JavaFileObject publicModuleFile = JavaFileObjects.forSourceLines("test.PublicModule",

@@ -24,6 +24,8 @@ import static dagger.internal.codegen.ConfigurationAnnotations.getSubcomponentBu
 import com.google.auto.common.MoreTypes;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableSet;
+
+import java.util.Collections;
 import java.util.Optional;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
@@ -62,6 +64,9 @@ abstract class SubcomponentDeclaration extends BindingDeclaration {
 
     ImmutableSet<SubcomponentDeclaration> forModule(TypeElement module) {
       ImmutableSet.Builder<SubcomponentDeclaration> declarations = ImmutableSet.builder();
+      if (!getModuleAnnotation(module).isPresent())
+        return declarations.build();
+
       AnnotationMirror moduleAnnotation = getModuleAnnotation(module).get();
       ExecutableElement subcomponentAttribute =
           getAnnotationElementAndValue(moduleAnnotation, "subcomponents").getKey();

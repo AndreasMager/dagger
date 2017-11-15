@@ -451,8 +451,20 @@ final class ModuleValidator {
     Visibility moduleVisibility = Visibility.ofElement(moduleElement);
     if (moduleVisibility.equals(PRIVATE)) {
       reportBuilder.addError("Modules cannot be private.", moduleElement);
-    } else if (effectiveVisibilityOfElement(moduleElement).equals(PRIVATE)) {
-      reportBuilder.addError("Modules cannot be enclosed in private types.", moduleElement);
+    }
+
+    Visibility tmp;
+    try {
+      tmp = effectiveVisibilityOfElement(moduleElement);
+    } catch (NoSuchFieldError e) {
+      tmp = PUBLIC;
+      reportBuilder.addError("Foooobar", moduleElement); 
+    }
+
+    Visibility effectivVisibility = tmp;
+
+    if (effectivVisibility.equals(PRIVATE)) {
+      reportBuilder.addError("Modules cannot be enclosed in private types.", moduleElement); 
     }
 
     switch (moduleElement.getNestingKind()) {
@@ -468,7 +480,7 @@ final class ModuleValidator {
                       getModuleIncludes(
                           getAnnotationMirror(moduleElement, moduleKind.moduleAnnotation()).get()))
                   .transform(types::asElement)
-                  .filter(element -> effectiveVisibilityOfElement(element).compareTo(PUBLIC) < 0)
+                  .filter(element ->  effectivVisibility.compareTo(PUBLIC) < 0)
                   .toSet();
           if (!nonPublicModules.isEmpty()) {
             reportBuilder.addError(

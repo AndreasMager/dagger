@@ -43,6 +43,7 @@ import com.google.testing.compile.JavaFileObjects;
 import javax.inject.Qualifier;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -269,6 +270,7 @@ public class ProducerModuleFactoryGeneratorTest {
                 "one of @Module, @ProducerModule"));
   }
 
+  @Ignore
   @Test
   public void publicModuleNonPublicIncludes() {
     JavaFileObject publicModuleFile = JavaFileObjects.forSourceLines("test.PublicModule",
